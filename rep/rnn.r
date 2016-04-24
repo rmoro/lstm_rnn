@@ -3,11 +3,12 @@
 // EMAIL:    robert@morouney.com 
 // FILE:     rnn.r
 // CREATED:  2016-04-23 21:22:35
-// MODIFIED: 2016-04-23 21:56:46
+// MODIFIED: 2016-04-23 22:45:40
 ////////////////////////////////////////////////////////////////////
 #ifndef RNN_R
     #define RNN_R
-    
+    #include "../inc/types.h"
+
     typedef struct Synapse Synapse;
     
     struct Synapse {
@@ -21,10 +22,10 @@
         
         // input variables - - - - - - - - -
         double      alpha_f;
-        u64         input_dim_64;
+        u64         in_dim_64;
         u64         hidden_dim_64;
-        u64         output_dim_64;
-        u32         num_inputs_32;
+        u64         out_dim_64;
+        u32         num_in_32;
         // - - - - - - - - - - - - - - - - - 
 
         Synapse     synap;

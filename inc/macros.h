@@ -3,26 +3,25 @@
 // EMAIL:    robert@morouney.com
 // FILE:     macros.h
 // CREATED:  2016-04-21 12:03:42
-// MODIFIED: 2016-04-22 20:07:35
+// MODIFIED: 2016-04-23 22:32:03
 ////////////////////////////////////////////////////////////////////
 
 #ifndef MACRO_H
     #define MACRO_H
     
     #include "types.h"
+    
+    #define DEBUG_S #ifdef DEBUG
+    #define DEBUG_E  #endif
 
     #define BLOCK_START {
-
     #define BLOCK_END   }
 
     #define FALSE (0)
-
     #define TRUE (!FALSE)
 
     #define MIN(a, b)  (((a) < (b)) ? (a) : (b))
-
     #define MAX(a, b)  (((a) > (b)) ? (a) : (b))
-
     #define ABS(a)	   (((a) < 0) ? -(a) : (a))
 
     // % used for assertions. e.g assert(IMPLIES(n > 0, array != NULL));
