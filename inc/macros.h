@@ -3,14 +3,16 @@
 // EMAIL:    robert@morouney.com
 // FILE:     macros.h
 // CREATED:  2016-04-21 12:03:42
-// MODIFIED: 2016-04-23 22:32:03
+// MODIFIED: 2016-04-24 00:07:53
 ////////////////////////////////////////////////////////////////////
 
 #ifndef MACRO_H
     #define MACRO_H
     
     #include "types.h"
-    
+   
+    #define IN  ,
+
     #define DEBUG_S #ifdef DEBUG
     #define DEBUG_E  #endif
 
@@ -49,7 +51,7 @@
     #define ZERO(d, n) SET(d, n, 0)
 
     // % For Each Loop.  pretty easy to get your head around.
-    #define foreach(item, array) \
+    #define FOREACH(item, array) \
         for(int keep=1, \
                 count=0,\
                 size=sizeof (array)/sizeof *(array); \

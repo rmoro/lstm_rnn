@@ -3,23 +3,30 @@
 // EMAIL:    robert@morouney.com 
 // FILE:     rnn.r
 // CREATED:  2016-04-23 21:22:35
-// MODIFIED: 2016-04-23 22:45:40
+// MODIFIED: 2016-04-24 00:53:42
 ////////////////////////////////////////////////////////////////////
 #ifndef RNN_R
     #define RNN_R
     #include "../inc/types.h"
+    #include <stdargs.h>
+    #include <stdlib.h>
 
     typedef struct Synapse Synapse;
     
     struct Synapse {
-        double  _0;
-        double  _1;
-        double  _h;
+        double **   _0;
+        double **   _0_update;
+        double **   _1;
+        double **   _1_update;
+        double **   _h;
+        double **   _h_update;
     };
 
     struct RNN {
         const void * class; //must be first
         
+        va_list*     _options;
+
         // input variables - - - - - - - - -
         double      alpha_f;
         u64         in_dim_64;
@@ -29,7 +36,7 @@
         // - - - - - - - - - - - - - - - - - 
 
         Synapse     synap;
-        
+
         u64 *       inputs_64;
         bool **     inputs_bl;
 

@@ -3,7 +3,7 @@
 // EMAIL:    robert@morouney.com 
 // FILE:     rnn.h
 // CREATED:  2016-04-23 20:50:46
-// MODIFIED: 2016-04-23 21:22:28
+// MODIFIED: 2016-04-24 00:35:37
 ////////////////////////////////////////////////////////////////////
 #ifndef RNN_H
     #define RNN_H
@@ -15,10 +15,5 @@
     void int2binary ( bool * bin , u64 num64 );
     u64 binary2int ( bool * bin );
     void transpose ( bool * src, bool * dest, u64 dest_len);
-    RNN_init ( void * _self , va_list *args );
-    RNN_del ( void * _self );
-    RNN_cpy ( void * _self );
-    RNN_str ( void * _self );
-
 
 #endif
