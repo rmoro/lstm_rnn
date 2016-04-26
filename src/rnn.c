@@ -3,7 +3,7 @@
 // EMAIL:    robert@morouney.com 
 // FILE:     rnn.c
 // CREATED:  2016-04-23 21:56:51
-// MODIFIED: 2016-04-26 14:25:08
+// MODIFIED: 2016-04-26 18:48:26
 ////////////////////////////////////////////////////////////////////
 
 #include <assert.h>
@@ -17,6 +17,7 @@
 #include "../inc/types.h"
 #include "../inc/class.h"
 #include "../inc/rnn.h"
+#include "../inc/matrix.h"
 
 #include "../rep/class.r"
 #include "../rep/rnn.r"
@@ -79,11 +80,13 @@ void * RNN_init ( const void * _self , va_list *args )
     assert ( self -> num_in_32 );
     #ifdef DEBUG
         TRACE("Number of Inputs = %u \n" self -> num_in_32);
+        TRACE("Initializing RNN internal methods\n","RNN");
     #endif
 
     // INTERNAL METHODS
     self->input = _input;
     self->train = _train;
+    self->toggle_train = _toggle_train;
     self->_init_synap = __init_synap;
     self->_kill_synap = __kill_synap;
     self->_init_layer = __init_layer;
@@ -92,6 +95,10 @@ void * RNN_init ( const void * _self , va_list *args )
     // INTERNAL STRUCT INIT FUNCTIONS
     self->synap = self->_init_synap(self);
     self->layer = self->_init_layers(self);
+    
+    // Initialize internal Vars and Counters
+    self.train_flag         = FALSE;
+    self.overall_error_f    = 0.0;
     return self;
 }// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
@@ -116,56 +123,60 @@ void * RNN_str (void * self )
     return; //pstring;
 }// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-Synapse * __init_synap ( void * _self ){
-    struct RNN * self = _self; 
+void _toggle_train (void * _self ) 
+{   struct RNN * self = _self;
+    #ifdef DEBUG
+    TRACE("training mode toggled to: %s\n",
+            (self->train_flag):"OFF":"ON");
+    #endif
+    self->train_flag = !(self.train_flag);
+    return;
+}
+Layers  * __init_layer ( void * _self )
+{   struct RNN * self = _self;
+    #ifdef DEBUG
+        TRACE("layer._1 initializing..""RNN");
+        self->layer->_1 = malloc(
+}
+Synapse * __init_synap ( void * _self )
+{   struct RNN * self = _self; 
+
     //--------------------------------------------------------
     #ifdef DEBUG
         TRACE("synap._0 = [ %d , %d ]", self->in_dim_64, self->hidden_dim_64);
     #endif
-    assert(self->synap._0 = malloc(self->in_dim_64*sizeof(double *)));
-    assert(self->synap._0_update = malloc(self->in_dim_64*sizeof(double *)));
-
+        self->synap->_0 = newMatrix(self->in_dim_64,self->hidden_dim_64); 
     for ( u64 i = 0; i < self->in_dim_64; i++ )
-    {   assert ( self->synap._0[i] = malloc(self->hidden_dim_64*sizeof(double)));
-        assert ( self->synap._0_update[i] = calloc(self->hidden_dim_64,sizeof(double)));
-        FOREACH(double *syn IN self->synap._0[i])    
-            *syn = ( 2f * rand() ) - 1;    
+    {   
     }
 
     //--------------------------------------------------------
     #ifdef DEBUG
         TRACE("synap._1 = [ %d , %d ]", self->hidden_dim_64, self->out_dim_64);
     #endif
-    assert(self->synap._1 = malloc(self->hidden_dim_64*sizeof(double *)));
-    assert(self->synap._1_update = malloc(self->out_dim_64*sizeof(double *)));
 
     for ( u64 i = 0; i < self->hidden_dim_64; i++ )
-    {   assert ( self->synap._0[i] = malloc(self->out_dim_64*sizeof(double)));
-        assert ( self->synap._0_update[i] = calloc(self->out_dim_64,sizeof(double)));
-        FOREACH(double *syn IN self->synap._0[i])    
-            *syn = ( 2f * rand() ) - 1;    
+    {  
     }
 
     //--------------------------------------------------------
     #ifdef DEBUG
         TRACE("synap._h = [ %d , %d ]", self->hidden_dim_64, self->hidden_dim_64);
     #endif
-    assert(self->synap._0 = malloc(self->hidden_dim_64*sizeof(double *)));
-    assert(self->synap._0_update = malloc(self->hidden_dim_64*sizeof(double *)));
 
     for ( u64 i = 0; i < self->hidden_dim_64; i++ )
-    {   assert(self->synap._0[i] = malloc(self->hidden_dim_64*sizeof(double)));
-        assert(self->synap._0_update[i] = calloc(self->hidden_dim_64,sizeof(double)));
-        FOREACH(double *syn IN self->synap._0[i])    
-            *syn = ( 2f * rand() ) - 1;    
+    {   for ( u64 j = 0; j < self->hidden_dim_64; j++ )
+        {   
+        }
     }
 
     return self->synap;
 }
 
-void _kill_synap ( void * self )
+void __kill_synap ( void * self )
 {   struct RNN * self = _self;
-    free ( self->synap->_0 );
-    free ( self->synap->_h );
-    free ( self->synap->_1 );
+    truefree ( self->synap->_0 );
+    truefree ( self->synap->_h );
+    truefree ( self->synap->_1 );
+    truefree ( self->synap );
 }

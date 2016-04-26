@@ -3,11 +3,12 @@
 // EMAIL:    robert@morouney.com 
 // FILE:     rnn.r
 // CREATED:  2016-04-23 21:22:35
-// MODIFIED: 2016-04-26 14:20:40
+// MODIFIED: 2016-04-26 17:44:42
 ////////////////////////////////////////////////////////////////////
 #ifndef RNN_R
     #define RNN_R
     #include "../inc/types.h"
+    #include "../inc/matrix.h"
     #include <stdargs.h>
     #include <stdlib.h>
 
@@ -16,33 +17,34 @@
     typedef struct RNN      RNN;
 
     struct Synapse {
-        double **   _0;
-        double      _0_update;
-        double **   _1;
-        double      _1_update;
-        double **   _h;
-        double      _h_update;
+        matrix      _0;
+        matrix      _0_update;
+        matrix      _1;
+        matrix      _1_update;
+        matrix      _h;
+        matrix      _h_update;
     };
     
     struct Layers {
-        double *    _0;
-        double *    _1;
-        double **   _1_values
-        double *    _1_prev;
-        double *    _1_future_delta;
-        double *    _2;
-        double **   _2_deltas;
+        matrix      _1;
+        matrix      _1_values
+        matrix      _1_prev;
+        matrix      _1_future_delta;
+        matrix      _2;
+        matrix      _2_deltas;
     };
 
     struct RNN {
-        const void * class; //must be first
+        const void * class;         //must be first
         void * ( update )           ( void * _self, u64 inn, u64 * inl );    
         void * ( train )            ( void * _self, u32 outn, u64 * outl, u64 inn, u64 * inl );
+        void * ( toggle_train )     ( void * _self, u08 flag );
         void * ( _init_synap )      ( void * _self );
         void * ( _init_layer )      ( void * _self );
         void * ( _kill_synap )      ( void * _self );
         void * ( _kill_layer )      ( void * _self );
-        va_list*     _options;
+        
+        va_list*    _options;
 
         // input variables - - - - - - - - -
         double      alpha_f;
@@ -56,6 +58,8 @@
 
         Synapse     synap;
         Layers      layer;
+        
+        u08         _train_flg;
 
         u64  *      inputs_64;
         u08  **     inputs_bl;
@@ -63,7 +67,7 @@
         u08  **     outputs_bl;
         u08  *      prediction_bl;
         u08  *      difference_bl;
-        
+        u08  *      real_answer_bl;
         double      overall_error_f;
         
     }
