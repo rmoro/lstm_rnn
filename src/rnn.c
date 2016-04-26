@@ -3,7 +3,7 @@
 // EMAIL:    robert@morouney.com 
 // FILE:     rnn.c
 // CREATED:  2016-04-23 21:56:51
-// MODIFIED: 2016-04-26 18:48:26
+// MODIFIED: 2016-04-26 19:28:51
 ////////////////////////////////////////////////////////////////////
 
 #include <assert.h>
@@ -27,7 +27,7 @@
 void * RNN_init ( const void * _self , va_list *args )
 {   struct RNN  * self = _self;
     
-    #ifdef DEBUG
+    #ifdef _VERBOSE
         TRACE("Creating recurrent neural network ... ", "RNN_init");
     #endif
     
@@ -36,49 +36,49 @@ void * RNN_init ( const void * _self , va_list *args )
     // THE ALPHA OFFSET 
     self->alpha_f = va_arg ( * args , double );
     assert ( self -> alpha_f );
-    #ifdef DEBUG
+    #ifdef _VERBOSE
         TRACE("Alpha = %f \n" self -> alpha_f);
     #endif
     
     // GET THE INPUT DIMENSION 
     self->in_dim_64 = va_arg ( * args , u64 );
     assert ( self -> in_dim_64 );
-    #ifdef DEBUG
+    #ifdef _VERBOSE
         TRACE("Input Dimension = %llu \n" self -> in_dim_64);
     #endif
 
     // GET LENGTH OF HIDDEN ARRAY
     self->hidden_dim_64 = va_arg ( * args , u64 );
     assert ( self -> hidden_dim_64 );
-    #ifdef DEBUG
+    #ifdef _VERBOSE
         TRACE("Hidden Dimension = %llu \n" self -> hidden_dim_64);
     #endif
     
     // GET LENGTH OF OUTPUT ARRAY
     self->out_dim_64 = va_arg ( * args , u64 );
     assert ( self -> out_dim_64 );
-    #ifdef DEBUG
+    #ifdef _VERBOSE
         TRACE("Output Dimension = %llu \n" self -> out_dim_64);
     #endif
 
     // GET LENGTH OF BINARY INPUT ARRAY
     self->num_in_32 = va_arg ( * args , u64 );
     assert ( self -> bin_dim_64 );
-    #ifdef DEBUG
+    #ifdef _VERBOSE
         TRACE("Binary Dimension = %u \n" self -> num_in_32);
     #endif
 
     // GET NUMBER OF OUTPUTS
     self->num_in_32 = va_arg ( * args , u32 );
     assert ( self -> num_out_32 );
-    #ifdef DEBUG
+    #ifdef _VERBOSE
         TRACE("Number of outputs = %u \n" self -> num_out_32);
     #endif
 
     // GET NUMBER OF INPUTS
     self->num_in_32 = va_arg ( * args , u32 );
     assert ( self -> num_in_32 );
-    #ifdef DEBUG
+    #ifdef _VERBOSE
         TRACE("Number of Inputs = %u \n" self -> num_in_32);
         TRACE("Initializing RNN internal methods\n","RNN");
     #endif
@@ -88,25 +88,28 @@ void * RNN_init ( const void * _self , va_list *args )
     self->train = _train;
     self->toggle_train = _toggle_train;
     self->_init_synap = __init_synap;
-    self->_kill_synap = __kill_synap;
+    self->_kill_synap = __kill_synapse;
     self->_init_layer = __init_layer;
-    self->_kill_layer = __kill_layer;
+    self->_kill_layer = __kill_layers;
+    
     
     // INTERNAL STRUCT INIT FUNCTIONS
     self->synap = self->_init_synap(self);
     self->layer = self->_init_layers(self);
     
     // Initialize internal Vars and Counters
-    self.train_flag         = FALSE;
+    self.train_flag         = TRUE;
     self.overall_error_f    = 0.0;
     return self;
 }// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 void * RNN_del ( void * self ) 
 {   struct RNN * self = _self;
-    free(self->synap._0);
-    free(self->synap._1);
-    free(self->synap._h);
+    #ifdef _VERBOSE
+        TRACE("Deleting RNN %s","\n");
+    #endif
+    self->_kill_synapse(self);
+    self->_kill_layers(self);
     return free (self);
 }// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
@@ -125,50 +128,50 @@ void * RNN_str (void * self )
 
 void _toggle_train (void * _self ) 
 {   struct RNN * self = _self;
-    #ifdef DEBUG
+    #ifdef _VERBOSE
     TRACE("training mode toggled to: %s\n",
-            (self->train_flag):"OFF":"ON");
+            (self->train_flag)?"OFF":"ON");
     #endif
     self->train_flag = !(self.train_flag);
     return;
 }
 Layers  * __init_layer ( void * _self )
 {   struct RNN * self = _self;
-    #ifdef DEBUG
-        TRACE("layer._1 initializing..""RNN");
-        self->layer->_1 = malloc(
+    #ifdef _VERBOSE
+        TRACE("layer._1 initializing..","\n");
+    #endif
+    
 }
 Synapse * __init_synap ( void * _self )
 {   struct RNN * self = _self; 
 
-    //--------------------------------------------------------
-    #ifdef DEBUG
+    //synap._0 -----------------------------------------------
+    #ifdef _VERBOSE
         TRACE("synap._0 = [ %d , %d ]", self->in_dim_64, self->hidden_dim_64);
     #endif
         self->synap->_0 = newMatrix(self->in_dim_64,self->hidden_dim_64); 
     for ( u64 i = 0; i < self->in_dim_64; i++ )
-    {   
-    }
-
-    //--------------------------------------------------------
-    #ifdef DEBUG
+        for( u64 j = 0; j < self->hidden_dim_64; j++)
+            setElement( self->synap->_0, i, j, (double)rand()/(double)RAND_MAX );    
+    
+}
+    //synap._1 -----------------------------------------------
+    #ifdef _VERBOSE
         TRACE("synap._1 = [ %d , %d ]", self->hidden_dim_64, self->out_dim_64);
     #endif
 
     for ( u64 i = 0; i < self->hidden_dim_64; i++ )
-    {  
-    }
+        for( u64 j = 0; j < self->hidden_dim_64; j++)
+            setElement( self->synap->_0, i, j, (double)rand()/(double)RAND_MAX );    
 
-    //--------------------------------------------------------
-    #ifdef DEBUG
+    //synap._h -----------------------------------------------
+    #ifdef _VERBOSE
         TRACE("synap._h = [ %d , %d ]", self->hidden_dim_64, self->hidden_dim_64);
     #endif
 
     for ( u64 i = 0; i < self->hidden_dim_64; i++ )
-    {   for ( u64 j = 0; j < self->hidden_dim_64; j++ )
-        {   
-        }
-    }
+        for( u64 j = 0; j < self->hidden_dim_64; j++)
+            setElement( self->synap->_0, i, j, (double)rand()/(double)RAND_MAX );    
 
     return self->synap;
 }
