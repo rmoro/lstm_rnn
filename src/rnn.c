@@ -3,7 +3,7 @@
 // EMAIL:    robert@morouney.com 
 // FILE:     rnn.c
 // CREATED:  2016-04-23 21:56:51
-// MODIFIED: 2016-04-24 01:05:14
+// MODIFIED: 2016-04-25 22:07:34
 ////////////////////////////////////////////////////////////////////
 
 #include <assert.h>
@@ -131,64 +131,49 @@ void * RNN_str (void * self )
     return; //pstring;
 }// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-double sigmoid ( double x )
-{   return 1f/(1+exp(-x));
-}
+double _sigmoid ( double num_f )
+{   return 1f/(1+exp(-num_f));
+}// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-double sigmoid_derivative ( double x );
-{   return x*(1-x);
-}
+double _sigmoid_derivative ( double num_f );
+{   return num_f*(1-num_f);
+}// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-void int2binary ( bool * bin , u64 num64 )
-{   // TODO: IMPLEMENT THIS FUNCTION
-    return;
-}
+u08 * _int2binary ( u64 num_64 )
+{       u08 num_bits = LG2 ( num_64 ) + 1;
+        u08 *p=malloc(num_bits_needed*sizeof(u08));
+        *p+=num_bits - 1;
+        for (*--p=0; num_64; num_64>>=1) *--p=num_64%2;
+        return *p;
+}// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-u64 binary2int ( bool * bin )
-{   // TODO: IMPLEMENT THIS FUNCTION
-    return;
-}
+u64 _binary2int ( u08 * bin )
+{   u64 num_64
+    u08 num_bits = sizeof(bin)/sizeof(u08);
+    u08 * c = *bin + num_bits - 1; 
+    for ( u08 idx = num_bits - 1; idx >= 0; idx--,c-- )
+        if (*c) num_64 |= 1 << idx; 
+    return num_64;
+}// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-void transpose ( bool * src, bool * dest, u64 dest_len);
-{   long i, j, *row, temp;
+void _transpose(double m[], const unsigned h, const unsigned w)
+{   for (unsigned start = 0; start <= w * h - 1; ++start)
+    {
+        unsigned next = start;
+        unsigned i = 0;
+        do
+        {   ++i;
+            next = (next % h) * w + next / h;
+        } while (next > start);
 
-   for(i=0; i<(1<<BL); i++) {
-      row=startpt;
-      for(j=0; j<(1<<BL); j+=8, row+=8*(1<<BL)) {
-
-         temp = destpt[j];
-         destpt[j] = row[0];
-         row[0] = temp;
-                                          /* gcc turns the BL stuff here  */
-         temp = destpt[j+1];              /* into numbers, saving lots of */
-         destpt[j+1] = row[1<<BL];        /* pointer addition and AGIs    */
-         row[1<<BL] = temp;
-
-         temp = destpt[j+2];
-         destpt[j+2] = row[2*(1<<BL)];           
-         row[2*(1<<BL)] = temp;
-
-         temp = destpt[j+3];
-         destpt[j+3] = row[3*(1<<BL)];           
-         row[3*(1<<BL)] = temp;
-
-         temp = destpt[j+4];
-         destpt[j+4] = row[4*(1<<BL)];
-         row[4*(1<<BL)] = temp;
-                                    
-         temp = destpt[j+5];        
-         destpt[j+5] = row[5*(1<<BL)];
-         row[5*(1<<BL)] = temp;
-
-         temp = destpt[j+6];
-         destpt[j+6] = row[6*(1<<BL)];           
-         row[6*(1<<BL)] = temp;
-
-         temp = destpt[j+7];
-         destpt[j+7] = row[7*(1<<BL)];           
-         row[7*(1<<BL)] = temp;
-      }
-      startpt++;                                 /* move to next column */
-      destpt+=destlength;                        /* move to next row    */
-   }                     
-}
+        if (next >= start && i != 1)
+        {   const double tmp = m[start];
+            next = start;
+            do
+            {   i = (next % h) * w + next / h;
+                m[next] = (i == start) ? tmp : m[i];
+                next = i;
+            } while (next > start);
+        }
+    }   
+}// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 

@@ -3,7 +3,7 @@
 // EMAIL:    robert@morouney.com 
 // FILE:     rnn.r
 // CREATED:  2016-04-23 21:22:35
-// MODIFIED: 2016-04-24 00:53:42
+// MODIFIED: 2016-04-25 22:41:41
 ////////////////////////////////////////////////////////////////////
 #ifndef RNN_R
     #define RNN_R
@@ -24,6 +24,8 @@
 
     struct RNN {
         const void * class; //must be first
+        void * ( input )        ( void * _self, u64 inn, u64 * inl );    
+        void * ( train )        ( void * _self, u64 output, u64 inn, u64 * inl );
         
         va_list*     _options;
 
@@ -51,7 +53,8 @@
         double      _layer0; //input layer
         double      _layer1; //hidden layer
         double      _layer2; //output layer
-    
+        
+
     }
 
 #endif
