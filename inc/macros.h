@@ -3,7 +3,7 @@
 // EMAIL:    robert@morouney.com
 // FILE:     macros.h
 // CREATED:  2016-04-21 12:03:42
-// MODIFIED: 2016-04-24 00:07:53
+// MODIFIED: 2016-04-26 22:06:19
 ////////////////////////////////////////////////////////////////////
 
 #ifndef MACRO_H
@@ -86,4 +86,7 @@
 
     // % Call function and exit if error occured
     #define CALL_AND_EXIT_ON_ERR(function) CALL_AND_CHECK(function, 0)
+
+    // % free memory and set ptr to NULL
+    #define truefree(ptr) do { free ( ptr ); ptr = NULL; }while( 0 );
 #endif

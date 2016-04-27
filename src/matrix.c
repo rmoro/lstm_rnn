@@ -3,7 +3,7 @@
 // EMAIL:    robert@morouney.com 
 // FILE:     src/matrix.c
 // CREATED:  2016-04-26 17:34:57
-// MODIFIED: 2016-04-26 17:38:50
+// MODIFIED: 2016-04-26 22:14:18
 ////////////////////////////////////////////////////////////////////
 
 #include <assert.h>
@@ -16,7 +16,7 @@
 struct _matrix {
   u32 rows;
   u32 cols;
-  double * data;
+  double ** data;
 };
 
 matrix newMatrix(u32 rows, u32 cols) {
@@ -29,11 +29,15 @@ matrix newMatrix(u32 rows, u32 cols) {
 
   if (rows > 0 && cols > 0) {
     // allocate a double array of length rows * cols
-    m->data = (double *) malloc(rows*cols*sizeof(double));
+    m->data = malloc(rows*sizeof( double * ));
+    for( i = 0; i < rows; i++ )
+        m->data[i] = malloc(cols*sizeof(double));
+
     // set all data to 0
     u32 i;
     for (i = 0; i < rows*cols; i++)
-      m->data[i] = 0.0;
+        for ( u32 j = 0; j < cols; j++ ) 
+            m->data[i] = 0.0;
   }
   else
     m->data = NULL;
@@ -63,7 +67,39 @@ void deleteMatrix(matrix mtx) {
   free(mtx);
 }
 
-#define ELEM(mtx, row, col) mtx->data[(col-1) * mtx->rows + (row-1)]
+#define ELEM(mtx, row, col) mtx->data[row][col]
+
+u32 setRow(matrix mtx, u32 row, double * row) {
+    
+    if ( row >= rows ) 
+    {   TRACE("[ FATAL ERROR ] row overflow in matrix, row = %u\n",row);
+        return -3;
+    }
+        
+    
+    if ( sizeof( mtx->data[ row ] ) != sizeof( row ) )
+    {   TRACE("[ FATAL ERROR ] wrong sized row given to setRow(..)%s","\n");
+        return -2;
+    }
+    // TODO: Decide if this function 
+    // should return the previous row
+    mtx->data[row] = NULL;
+    
+    #ifdef _VERBOSE
+        TRACE("GETTING ROW #%u\n",row);
+    #endif
+    mtx->data[row] = row;
+    
+        
+    if ( mtx->data[row] == NULL ) 
+    {   TRACE("[ FATAL ERROR ] error allocating memory for row%s","\n")
+        return -1;
+    }
+
+    truefree ( row );
+
+   return 0;
+}
 
 u32 setElement(matrix mtx, u32 row, u32 col, double val) {
   if (row <= 0 || row > mtx->rows ||
@@ -83,6 +119,20 @@ u32 getElement(matrix mtx, u32 row, u32 col, double * val) {
   *val = ELEM(mtx, row, col);
   return 0;
 }
+u32 getRow(matrix mtx, u32 row, double * row_ptr){
+    if(row >= mtx->rows) 
+    {   TRACE("[ FATAL ERROR ] ROW NOT WITHIN MATRIX%s","\n");
+        return -2;
+    }
+    row_ptr = NULL;
+    row_prt = malloc(sizeof(mtx->data[row]));
+    if ( row == NULL ) 
+    {   TRACE("[ FATAL ERROR ] error allocating memory for row%s","\n");
+        return -1;
+    }
+    row_ptr = mtx->data[row];
+    return 0;
+}   
 
 u32 nRows(matrix mtx) {
   return mtx->rows;
@@ -92,16 +142,11 @@ u32 nCols(matrix mtx) {
   return mtx->cols;
 }
 
-void pru32Matrix(matrix mtx) {
+void printMatrix(matrix mtx) {
   u32 row, col;
   for (row = 1; row <= mtx->rows; row++) {
     for (col = 1; col <= mtx->cols; col++)
-      // Pru32 the element with
-      //  - either a - if negative or a space if positve
-      //  - at least 3 spaces before the .
-      //  - precision to the hundredths place
       printf("% 6.2f ", ELEM(mtx, row, col));
-    // separate rows by newlines
     printf("\n");
   }
 }
