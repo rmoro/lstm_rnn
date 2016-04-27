@@ -3,7 +3,7 @@
 // EMAIL:    robert@morouney.com 
 // FILE:     rnn.r
 // CREATED:  2016-04-23 21:22:35
-// MODIFIED: 2016-04-26 17:44:42
+// MODIFIED: 2016-04-26 22:57:19
 ////////////////////////////////////////////////////////////////////
 #ifndef RNN_R
     #define RNN_R
@@ -48,10 +48,10 @@
 
         // input variables - - - - - - - - -
         double      alpha_f;
-        u64         in_dim_64;
-        u64         hidden_dim_64;
-        u64         out_dim_64;
-        u64         bin_dim_64;
+        u32         in_dim_64;
+        u32         hidden_dim_64;
+        u32         out_dim_64;
+        u32         bin_dim_64;
         u32         num_out_32;
         u32         num_in_32;
         // - - - - - - - - - - - - - - - - - 

@@ -3,7 +3,7 @@
 // EMAIL:    robert@morouney.com 
 // FILE:     rnn.c
 // CREATED:  2016-04-23 21:56:51
-// MODIFIED: 2016-04-26 19:28:51
+// MODIFIED: 2016-04-26 22:58:04
 ////////////////////////////////////////////////////////////////////
 
 #include <assert.h>
@@ -41,28 +41,28 @@ void * RNN_init ( const void * _self , va_list *args )
     #endif
     
     // GET THE INPUT DIMENSION 
-    self->in_dim_64 = va_arg ( * args , u64 );
+    self->in_dim_64 = va_arg ( * args , u32 );
     assert ( self -> in_dim_64 );
     #ifdef _VERBOSE
         TRACE("Input Dimension = %llu \n" self -> in_dim_64);
     #endif
 
     // GET LENGTH OF HIDDEN ARRAY
-    self->hidden_dim_64 = va_arg ( * args , u64 );
+    self->hidden_dim_64 = va_arg ( * args , u32 );
     assert ( self -> hidden_dim_64 );
     #ifdef _VERBOSE
         TRACE("Hidden Dimension = %llu \n" self -> hidden_dim_64);
     #endif
     
     // GET LENGTH OF OUTPUT ARRAY
-    self->out_dim_64 = va_arg ( * args , u64 );
+    self->out_dim_64 = va_arg ( * args , u32 );
     assert ( self -> out_dim_64 );
     #ifdef _VERBOSE
         TRACE("Output Dimension = %llu \n" self -> out_dim_64);
     #endif
 
     // GET LENGTH OF BINARY INPUT ARRAY
-    self->num_in_32 = va_arg ( * args , u64 );
+    self->num_in_32 = va_arg ( * args , u32 );
     assert ( self -> bin_dim_64 );
     #ifdef _VERBOSE
         TRACE("Binary Dimension = %u \n" self -> num_in_32);
@@ -149,37 +149,36 @@ Synapse * __init_synap ( void * _self )
     #ifdef _VERBOSE
         TRACE("synap._0 = [ %d , %d ]", self->in_dim_64, self->hidden_dim_64);
     #endif
-        self->synap->_0 = newMatrix(self->in_dim_64,self->hidden_dim_64); 
-    for ( u64 i = 0; i < self->in_dim_64; i++ )
-        for( u64 j = 0; j < self->hidden_dim_64; j++)
-            setElement( self->synap->_0, i, j, (double)rand()/(double)RAND_MAX );    
+    self->synap->_0 = newMatrix(self->in_dim_64,self->hidden_dim_64); 
+    for ( u32 i = 0; i < self->in_dim_64; i++ )
+        for( u32 j = 0; j < self->hidden_dim_64; j++)
+            CCE(setElement( self->synap->_0, i, j, (double)rand()/(double)RAND_MAX ));    
     
-}
     //synap._1 -----------------------------------------------
     #ifdef _VERBOSE
         TRACE("synap._1 = [ %d , %d ]", self->hidden_dim_64, self->out_dim_64);
     #endif
-
-    for ( u64 i = 0; i < self->hidden_dim_64; i++ )
-        for( u64 j = 0; j < self->hidden_dim_64; j++)
-            setElement( self->synap->_0, i, j, (double)rand()/(double)RAND_MAX );    
+    self->synap->_1 = newMatrix(self->hidden_dim_64,self->out_dim_64); 
+    for ( u32 i = 0; i < self->hidden_dim_64; i++ )
+        for( u32 j = 0; j < self->out_dim_64; j++)
+            CCE(setElement( self->synap->_1, i, j, (double)rand()/(double)RAND_MAX ));    
 
     //synap._h -----------------------------------------------
     #ifdef _VERBOSE
         TRACE("synap._h = [ %d , %d ]", self->hidden_dim_64, self->hidden_dim_64);
     #endif
-
-    for ( u64 i = 0; i < self->hidden_dim_64; i++ )
-        for( u64 j = 0; j < self->hidden_dim_64; j++)
-            setElement( self->synap->_0, i, j, (double)rand()/(double)RAND_MAX );    
+    self->synap->_h = newMatrix(self->hidden_dim_64,self->hidden_dim_64); 
+    for ( u32 i = 0; i < self->hidden_dim_64; i++ )
+        for( u32 j = 0; j < self->hidden_dim_64; j++)
+            CCE(setElement( self->synap->_h, i, j, (double)rand()/(double)RAND_MAX ));    
 
     return self->synap;
 }
 
 void __kill_synap ( void * self )
 {   struct RNN * self = _self;
-    truefree ( self->synap->_0 );
-    truefree ( self->synap->_h );
-    truefree ( self->synap->_1 );
-    truefree ( self->synap );
+    truefree( self->synap->_0 );
+    truefree( self->synap->_h );
+    truefree( self->synap->_1 );
+    truefree( self->synap );
 }
