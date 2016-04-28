@@ -3,7 +3,7 @@
 // EMAIL:    robert@morouney.com 
 // FILE:     rnn.r
 // CREATED:  2016-04-23 21:22:35
-// MODIFIED: 2016-04-26 22:57:19
+// MODIFIED: 2016-04-28 03:08:51
 ////////////////////////////////////////////////////////////////////
 #ifndef RNN_R
     #define RNN_R
@@ -11,27 +11,28 @@
     #include "../inc/matrix.h"
     #include <stdargs.h>
     #include <stdlib.h>
+    #include <gsl/gsl_matrix.h>
 
     typedef struct Synapse  Synapse;
     typedef struct Layers   Layers
     typedef struct RNN      RNN;
 
     struct Synapse {
-        matrix      _0;
-        matrix      _0_update;
-        matrix      _1;
-        matrix      _1_update;
-        matrix      _h;
-        matrix      _h_update;
+        gsl_matrix *    _0;
+        gsl_matrix *    _0_update;
+        gsl_matrix *    _1;
+        gsl_matrix *    _1_update;
+        gsl_matrix *    _h;
+        gsl_matrix *    _h_update;
     };
     
     struct Layers {
-        matrix      _1;
-        matrix      _1_values
-        matrix      _1_prev;
-        matrix      _1_future_delta;
-        matrix      _2;
-        matrix      _2_deltas;
+        gsl_matrix *    _1;
+        gsl_matrix *    _1_values
+        gsl_matrix *    _1_prev;
+        gsl_matrix *    _1_future_delta;
+        gsl_matrix *    _2;
+        gsl_matrix *    _2_deltas;
     };
 
     struct RNN {
@@ -56,19 +57,19 @@
         u32         num_in_32;
         // - - - - - - - - - - - - - - - - - 
 
-        Synapse     synap;
-        Layers      layer;
+        Synapse         synap;
+        Layers          layer;
         
-        u08         _train_flg;
+        u08             _train_flg;
 
-        u64  *      inputs_64;
-        u08  **     inputs_bl;
-        u64  *      outputs_64;
-        u08  **     outputs_bl;
-        u08  *      prediction_bl;
-        u08  *      difference_bl;
-        u08  *      real_answer_bl;
-        double      overall_error_f;
+        u64  *          inputs_64;
+        u64  *          outputs_64;
+        gsl_matrix *    inputs_bl;
+        gsl_matrix *    outputs_bl;
+        gsl_matrix *    prediction_bl;
+        gsl_matrix *    difference_bl;
+        gsl_matrix *    real_answer_bl;
+        double          overall_error_f;
         
     }
 

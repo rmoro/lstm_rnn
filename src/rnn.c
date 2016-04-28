@@ -3,7 +3,7 @@
 // EMAIL:    robert@morouney.com 
 // FILE:     rnn.c
 // CREATED:  2016-04-23 21:56:51
-// MODIFIED: 2016-04-26 22:58:04
+// MODIFIED: 2016-04-28 11:05:22
 ////////////////////////////////////////////////////////////////////
 
 #include <assert.h>
@@ -12,6 +12,8 @@
 #include <stdargs.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <gsl/gsl_matrix.h>
+#include <gsl/gsl_blas.h>
 
 #include "../inc/macros.h"
 #include "../inc/types.h"
@@ -149,28 +151,28 @@ Synapse * __init_synap ( void * _self )
     #ifdef _VERBOSE
         TRACE("synap._0 = [ %d , %d ]", self->in_dim_64, self->hidden_dim_64);
     #endif
-    self->synap->_0 = newMatrix(self->in_dim_64,self->hidden_dim_64); 
+    self->synap->_0 = gsl_matrix_alloc (self->in_dim_64,self->hidden_dim_64); 
     for ( u32 i = 0; i < self->in_dim_64; i++ )
         for( u32 j = 0; j < self->hidden_dim_64; j++)
-            CCE(setElement( self->synap->_0, i, j, (double)rand()/(double)RAND_MAX ));    
+            gsl_matrix_set ( self->synap->_0, i, j, (double)rand()/(double)RAND_MAX );    
     
     //synap._1 -----------------------------------------------
     #ifdef _VERBOSE
         TRACE("synap._1 = [ %d , %d ]", self->hidden_dim_64, self->out_dim_64);
     #endif
-    self->synap->_1 = newMatrix(self->hidden_dim_64,self->out_dim_64); 
+    self->synap->_1 = gsl_matrix_alloc (self->hidden_dim_64,self->out_dim_64); 
     for ( u32 i = 0; i < self->hidden_dim_64; i++ )
         for( u32 j = 0; j < self->out_dim_64; j++)
-            CCE(setElement( self->synap->_1, i, j, (double)rand()/(double)RAND_MAX ));    
+            gsl_matrix_set ( self->synap->_1, i, j, (double)rand()/(double)RAND_MAX );    
 
     //synap._h -----------------------------------------------
     #ifdef _VERBOSE
         TRACE("synap._h = [ %d , %d ]", self->hidden_dim_64, self->hidden_dim_64);
     #endif
-    self->synap->_h = newMatrix(self->hidden_dim_64,self->hidden_dim_64); 
+    self->synap->_h = gsl_matrix_alloc (self->hidden_dim_64,self->hidden_dim_64); 
     for ( u32 i = 0; i < self->hidden_dim_64; i++ )
         for( u32 j = 0; j < self->hidden_dim_64; j++)
-            CCE(setElement( self->synap->_h, i, j, (double)rand()/(double)RAND_MAX ));    
+            gsl_matrix_set ( self->synap->_h, i, j, (double)rand()/(double)RAND_MAX );    
 
     return self->synap;
 }
