@@ -3,7 +3,7 @@
 // EMAIL:    robert@morouney.com 
 // FILE:     rnn.r
 // CREATED:  2016-04-23 21:22:35
-// MODIFIED: 2016-04-28 03:08:51
+// MODIFIED: 2016-04-28 18:28:25
 ////////////////////////////////////////////////////////////////////
 #ifndef RNN_R
     #define RNN_R

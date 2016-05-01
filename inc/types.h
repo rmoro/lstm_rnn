@@ -3,7 +3,7 @@
 // EMAIL:    robert@morouney.com
 // FILE:     types.h
 // CREATED:  2016-04-21 12:03:42
-// MODIFIED: 2016-04-22 02:19:48
+// MODIFIED: 2016-04-28 11:10:06
 ////////////////////////////////////////////////////////////////////
 
 #ifndef INTDEF
@@ -26,9 +26,15 @@
     typedef int8_t              s08;
 #endif
 
-#ifndef U_ENUM
-#define U_ENUM
-    typedef enum { action_update, percept_update } update_enum;
+#ifndef GSL
+    #define GSL
+    #include <gsl/gsl_matrix.h>
+
+    typedef gsl_matrix matrix_d     
+    // putting this here in case i decide 
+    // to get more specific about the type 
+    // of matrix
+
 #endif
 
 #ifndef TUPLE_32
@@ -39,13 +45,4 @@
     } u32Tuple;
 #endif
 
-#ifndef UNDO
-#define UNDO
-    typedef struct {
-        u32             age;
-        u32             total_reward;
-        u32             history_size;
-        update_enum     last_update;
-    } AgentUndo;
-#endif
 
