@@ -3,7 +3,7 @@
 // EMAIL:    robert@morouney.com 
 // FILE:     rnn.c
 // CREATED:  2016-04-23 21:56:51
-// MODIFIED: 2016-04-28 11:05:22
+// MODIFIED: 2016-04-30 20:32:45
 ////////////////////////////////////////////////////////////////////
 
 #include <assert.h>
@@ -19,7 +19,6 @@
 #include "../inc/types.h"
 #include "../inc/class.h"
 #include "../inc/rnn.h"
-#include "../inc/matrix.h"
 
 #include "../rep/class.r"
 #include "../rep/rnn.r"
@@ -128,7 +127,97 @@ void * RNN_str (void * self )
     return; //pstring;
 }// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-void _toggle_train (void * _self ) 
+
+/// Training function.  Function is feed inputs and outputs in binary vectors. 
+//  each training cycle updates the RNN.  Will only work if train_toggle == true;
+void 
+__train ( 
+        void        * _self,    // link to class 
+        u32         inn,        // number of inputs
+        gsl_vector  inv[],      // list of input vectors
+        u32         outn,       // number of outputs
+        gsl_vector  outv[])     // output vector list
+{   
+    struct RNN * self = _self;
+    self->_reset_layers(self);
+    self->overall_error_f = 0.0;
+
+    gsl_vector prediction = gsl_vector_alloc(outv[1]->size);
+
+    u32 prev_layer_index = 0;
+    gsl_vector * layer_1 = gsl_vector_calloc ( self->synap->_0->size2 );
+    for( u32 position = 0; position < self->bin_dim_32; position++)
+    {   // create the input and output vectors
+        //
+        gsl_vector *input_v = gsl_vector_alloc (inn);
+        for ( u32 i = 0 ; i < inn; i++)
+            gsl_vector_set ( input_v, i, inv[i][(self->bin_dim_32-1) - position] );
+            // ^^^ replace with gsl_vector_get(inv[i], (self->bin_dim -1) - position)
+            //
+        #ifdef _VERBOSE
+            TRACE("created input vector %s","\n");
+        #endif
+        gsl_vector *output_v = gsl_vector_alloc (outn);
+        for ( u32 i = 0; i < outn; i++ )
+            gsl_vector_set ( output_v, i, outv[i][(self->bin_dim-1)-position]);
+            // ^^^ replace with gsl_vector_get(inv[i], (self->bin_dim -1) - position)
+            //
+        #ifdef _VERBOSE
+            TRACE("created output vector %s","\n");
+        #endif
+        for ( u32 i = 0; i < inn; i++ )
+        {   double s1 = gsl_vector_get ( input_v , i );
+            gsl_vector * t1 = gsl_matrix_row ( self->synap->_0 , i );
+            gsl_vector_scale ( t1 , s1 );
+            gsl_vecor_add ( layer_1 , t1 );
+            gsl_vector_free ( t1 );
+        }
+        #ifdef _VERBOSE
+            TRACE("numpy.dot ( input vector , synapse 0 )%s","\n");
+        #endif
+
+        sigmoid ( layer_1 );
+        #ifdef _VERBOSE
+            TRACE("sigmoid ( layer_1 ); %s","\n");
+        #endif
+
+        u32 h = self->synap->_h->size1;
+        for ( u32 r = 0; r < h; r++)
+        {   gsl_vector * tv2 = gsl_matrix_row ( self-synap->_h, r );
+            gsl_vector * tv  = gsl_matrix_row ( self->layer->_1_values, \
+                    self->layer->_1_values->size1 - position - 1);
+            gsl_vector_mul ( tv , tv2 );
+            gsl_vector_add ( layer_1, tv );
+            gsl_free ( tv ); gsl_free (tv2);
+        }
+            
+        #ifdef _VERBOSE
+            TRACE("numpy.dot ( previous_layer, hidden_synapse ) %s","\n");
+        #endif
+        
+        gsl_matrix * layer_2 = calloc ( h, h ); 
+        for ( u32 i = 0; i < h; i++)
+        {   for ( u32 j = 0; j < h; j++)
+            {   double product = \
+                 gsl_matrix_get ( self->synap->_1, i, 0 ) * \
+                 gsl_vector_get ( layer_1 , j );
+                 gsl_matrix_set ( layer_2 , i, j, product );
+            }
+        }
+
+        #ifdef _VERBOSE
+            TRACE("layer 2 = dot ( synap 1 , layer 1 ) %s","\n");
+        #endif
+        
+        sigmoid ( layer_2 );
+
+        #ifdef _VERBOSE
+            TRACE("sigmoid ( layer_2 ); %s","\n");
+        #endif
+
+
+void 
+_toggle_train (void * _self ) 
 {   struct RNN * self = _self;
     #ifdef _VERBOSE
     TRACE("training mode toggled to: %s\n",
@@ -137,14 +226,18 @@ void _toggle_train (void * _self )
     self->train_flag = !(self.train_flag);
     return;
 }
-Layers  * __init_layer ( void * _self )
+
+Layers  * 
+__init_layer ( void * _self )
 {   struct RNN * self = _self;
     #ifdef _VERBOSE
         TRACE("layer._1 initializing..","\n");
     #endif
-    
+    self->layer->_1 
 }
-Synapse * __init_synap ( void * _self )
+
+Synapse * 
+__init_synap ( void * _self )
 {   struct RNN * self = _self; 
 
     //synap._0 -----------------------------------------------
@@ -177,7 +270,8 @@ Synapse * __init_synap ( void * _self )
     return self->synap;
 }
 
-void __kill_synap ( void * self )
+void 
+__kill_synap ( void * self )
 {   struct RNN * self = _self;
     truefree( self->synap->_0 );
     truefree( self->synap->_h );
